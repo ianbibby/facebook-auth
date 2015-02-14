@@ -10,36 +10,59 @@
   </head>
   <body unresolved>
     <p>An `facebook-auth` looks like this:</p>
-    <facebook-auth appID="273431289500370" scope="email"></facebook-auth>
 
     <template id="demo" is="auto-binding">
+
+      <facebook-auth
+          id="fbAuth"
+          appID="273431289500370"
+          scope="email"
+          state="{{fbAuthState}}"
+          ></facebook-auth>
+
       <button on-click="{{fbLogin}}">Login</button>
       <button on-click="{{fbLogout}}">Logout</button>
       <button on-click="{{fbGetPermissions}}">Get permissions</button>
 
+      <p>
+        <strong>Facebook auth state:</strong>
+        {{fbAuthState}}
+      </p>
+
+      <p>
+        <strong>Facebook permissions:</strong>
+        {{permissions}}
+      </p>
+
       <core-signals
         on-core-signal-facebook-auth-success="{{fbSuccess}}"
         on-core-signal-facebook-auth-not-authorized="{{fbNotAuthorized}}"
-        on-core-signal-facebook-auth-not-logged-in="{{fbLoggedOut}}"></core-signals>
+        on-core-signal-facebook-auth-not-logged-in="{{fbLoggedOut}}"
+        on-core-signal-facebook-auth-permissions-ready="{{fbPermissions}}"></core-signals>
     </template>
 
     <script>
       var demo = document.querySelector("#demo");
-      var fbauth = document.querySelector("facebook-auth");
+
+      demo.permissions = "Click get permissions";
+
+      demo.fbAuthStateChanged = function() {
+        console.log("State changed");
+      }
 
       demo.fbLogin = function(e) {
         e.preventDefault();
-        fbauth.login();
+        this.$.fbAuth.login();
       }
 
       demo.fbLogout = function(e) {
         e.preventDefault();
-        fbauth.logout();
+        this.$.fbAuth.logout();
       }
 
       demo.fbGetPermissions = function(e) {
         e.preventDefault();
-        fbauth.getPermissions();
+        this.$.fbAuth.getPermissions();
       }
 
       demo.fbSuccess = function(e) {
@@ -51,7 +74,11 @@
       }
 
       demo.fbLoggedOut = function(e) {
-        console.log("Logged out", e);
+        console.log("Logged out - should not use for web", e);
+      }
+
+      demo.fbPermissions = function(e) {
+        this.permissions = JSON.stringify(this.$.fbAuth.permissions);
       }
     </script>
   </body>

@@ -1,26 +1,24 @@
 <link rel="import" href="../polymer/polymer.html">
 
 <!--
-Element providing solution to no problem in particular.
+A simple Facebook authentication element using core-signals.
 
 ##### Example
 
-    <facebook-auth></facebook-auth>
+    <facebook-auth appID="123456"></facebook-auth>
 
 @element facebook-auth
-@blurb Element providing solution to no problem in particular.
-@status alpha
+@blurb A simple Facebook authentication element using core-signals.
+@status beta
 @homepage http://ianbibby.github.io/facebook-auth
 -->
-<polymer-element name="facebook-auth" attributes="appID scopes granted declined">
+<polymer-element name="facebook-auth" attributes="appID scopes state">
   <script>
 
     (function() {
 
       // This is called with the results from from FB.getLoginStatus().
       function statusChangeCallback(response) {
-        console.log('statusChangeCallback');
-        console.log(response);
         // The response object is returned with a status field that lets the
         // app know the current login status of the person.
         // Full docs on the response object can be found in the documentation
@@ -29,13 +27,16 @@ Element providing solution to no problem in particular.
         if (response.status === 'connected') {
           // Logged into your app and Facebook.
           name = 'facebook-auth-success';
+          handler.state = 'connected';
         } else if (response.status === 'not_authorized') {
           // The person is logged into Facebook, but not your app.
           name = 'facebook-auth-not-authorized';
+          handler.state = 'not_authorized';
         } else {
           // The person is not logged into Facebook, so we're not sure if
           // they are logged into this app or not.
           name = 'facebook-auth-not-logged-in';
+          handler.state = 'not_logged_in';
         }
         handler.fire('core-signal', { name: name, data: response.authResponse });
       };
@@ -62,12 +63,12 @@ Element providing solution to no problem in particular.
         appID: null,
         scopes: "public_profile",
         permissions: null,
+        state: null,
 
         ready: function () {
           handler = this;
 
           window.fbAsyncInit = function() {
-            console.log("ID:", handler.appID);
             FB.init({
               appId      : handler.appID,
               cookie     : true,  // enable cookies to allow the server to access
@@ -123,7 +124,6 @@ Element providing solution to no problem in particular.
             for (var i = 0; i < data.length; i++) {
               handler.permissions[data[i].status].push(data[i].permission);
             }
-            console.log("Permissions", handler.permissions);
             handler.fire('core-signal', { name: "facebook-auth-permissions-ready", data: handler.permissions });
           });
         }
