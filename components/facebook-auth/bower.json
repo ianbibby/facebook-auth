@@ -1,0 +1,17 @@
+{
+  "name": "facebook-auth",
+  "version": "0.1.0",
+  "keywords": [
+    "seed",
+    "polymer",
+    "web-components"
+  ],
+  "main": "facebook-auth.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^0.5.1",
+    "core-signals": "Polymer/core-signals#~0.5.4"
+  },
+  "devDependencies": {
+    "web-component-tester": "Polymer/web-component-tester#^2.0.0"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "name": "facebook-auth#gh-pages",
+  "private": true,
+  "dependencies": {
+    "facebook-auth": "ianbibby/facebook-auth#master"
+  }
+}
