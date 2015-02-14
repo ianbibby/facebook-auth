@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>facebook-auth Demo</title>
+    <script src="../webcomponentsjs/webcomponents.js"></script>
+    <link rel="import" href="facebook-auth.html">
+    <link rel="import" href="../core-signals/core-signals.html">
+  </head>
+  <body unresolved>
+    <p>An `facebook-auth` looks like this:</p>
+    <facebook-auth appID="273431289500370" scope="email"></facebook-auth>
+
+    <template id="demo" is="auto-binding">
+      <button on-click="{{fbLogin}}">Login</button>
+      <button on-click="{{fbLogout}}">Logout</button>
+      <button on-click="{{fbGetPermissions}}">Get permissions</button>
+
+      <core-signals
+        on-core-signal-facebook-auth-success="{{fbSuccess}}"
+        on-core-signal-facebook-auth-not-authorized="{{fbNotAuthorized}}"
+        on-core-signal-facebook-auth-not-logged-in="{{fbLoggedOut}}"></core-signals>
+    </template>
+
+    <script>
+      var demo = document.querySelector("#demo");
+      var fbauth = document.querySelector("facebook-auth");
+
+      demo.fbLogin = function(e) {
+        e.preventDefault();
+        fbauth.login();
+      }
+
+      demo.fbLogout = function(e) {
+        e.preventDefault();
+        fbauth.logout();
+      }
+
+      demo.fbGetPermissions = function(e) {
+        e.preventDefault();
+        fbauth.getPermissions();
+      }
+
+      demo.fbSuccess = function(e) {
+        console.log("Logged in", e);
+      }
+
+      demo.fbNotAuthorized = function(e) {
+        console.log("Not authorized", e);
+      }
+
+      demo.fbLoggedOut = function(e) {
+        console.log("Logged out", e);
+      }
+    </script>
+  </body>
+</html>

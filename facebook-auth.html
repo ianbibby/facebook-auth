@@ -1,0 +1,133 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<!--
+Element providing solution to no problem in particular.
+
+##### Example
+
+    <facebook-auth></facebook-auth>
+
+@element facebook-auth
+@blurb Element providing solution to no problem in particular.
+@status alpha
+@homepage http://ianbibby.github.io/facebook-auth
+-->
+<polymer-element name="facebook-auth" attributes="appID scopes granted declined">
+  <script>
+
+    (function() {
+
+      // This is called with the results from from FB.getLoginStatus().
+      function statusChangeCallback(response) {
+        console.log('statusChangeCallback');
+        console.log(response);
+        // The response object is returned with a status field that lets the
+        // app know the current login status of the person.
+        // Full docs on the response object can be found in the documentation
+        // for FB.getLoginStatus().
+        var name = null;
+        if (response.status === 'connected') {
+          // Logged into your app and Facebook.
+          name = 'facebook-auth-success';
+        } else if (response.status === 'not_authorized') {
+          // The person is logged into Facebook, but not your app.
+          name = 'facebook-auth-not-authorized';
+        } else {
+          // The person is not logged into Facebook, so we're not sure if
+          // they are logged into this app or not.
+          name = 'facebook-auth-not-logged-in';
+        }
+        handler.fire('core-signal', { name: name, data: response.authResponse });
+      };
+
+      // This function is called when someone finishes with the Login
+      // Button.  See the onlogin handler attached to it in the sample
+      // code below.
+      function checkLoginState() {
+        FB.getLoginStatus(function(response) {
+          statusChangeCallback(response);
+        });
+      };
+
+      var handler;
+
+      Polymer({
+        /**
+         * Facebook appID.
+         *
+         * @attribute appID
+         * @type string
+         * @default null
+         */
+        appID: null,
+        scopes: "public_profile",
+        permissions: null,
+
+        ready: function () {
+          handler = this;
+
+          window.fbAsyncInit = function() {
+            console.log("ID:", handler.appID);
+            FB.init({
+              appId      : handler.appID,
+              cookie     : true,  // enable cookies to allow the server to access
+                                  // the session
+              xfbml      : true,  // parse social plugins on this page
+              version    : 'v2.1' // use version 2.1
+            });
+
+            // Now that we've initialized the JavaScript SDK, we call
+            // FB.getLoginStatus().  This function gets the state of the
+            // person visiting this page and can return one of three states to
+            // the callback you provide.  They can be:
+            //
+            // 1. Logged into your app ('connected')
+            // 2. Logged into Facebook, but not your app ('not_authorized')
+            // 3. Not logged into Facebook and can't tell if they are logged into
+            //    your app or not.
+            //
+            // These three cases are handled in the callback function.
+            handler.getLoginStatus();
+          };
+
+          if(typeof(FB) == 'undefined') {
+            // Load the SDK asynchronously
+            (function(d, s, id) {
+              var js, fjs = d.getElementsByTagName(s)[0];
+              if (d.getElementById(id)) return;
+              js = d.createElement(s); js.id = id;
+              js.src = "//connect.facebook.net/en_US/sdk.js";
+              fjs.parentNode.insertBefore(js, fjs);
+            }(document, 'script', 'facebook-jssdk'));
+          }
+        },
+        login: function() {
+          FB.login(function(response) {
+            statusChangeCallback(response);
+          }, { scope: this.scopes });
+        },
+        logout: function() {
+          FB.logout(function(response) {
+            statusChangeCallback(response);
+          });
+        },
+        getLoginStatus: function() {
+          FB.getLoginStatus(function(response) {
+            statusChangeCallback(response);
+          });
+        },
+        getPermissions: function() {
+          FB.api('/me/permissions', function(response) {
+            var data = response.data;
+            handler.permissions = { "granted": [], "declined": [] };
+            for (var i = 0; i < data.length; i++) {
+              handler.permissions[data[i].status].push(data[i].permission);
+            }
+            console.log("Permissions", handler.permissions);
+            handler.fire('core-signal', { name: "facebook-auth-permissions-ready", data: handler.permissions });
+          });
+        }
+      });
+    })();
+  </script>
+</polymer-element>
