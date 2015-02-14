@@ -1,7 +1,11 @@
 {
   "name": "facebook-auth",
   "version": "0.1.0",
+  "authors": [
+    "Ian Bibby <ian.bibby@gmail.com>"
+  ],
   "keywords": [
+    "facebook",
     "seed",
     "polymer",
     "web-components"
