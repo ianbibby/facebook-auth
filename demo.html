@@ -15,10 +15,28 @@
 
       <facebook-auth
           id="fbAuth"
-          appID="273431289500370"
-          scope="email"
+          appID="{{appID}}"
+          scopes="{{scopes}}"
           state="{{fbAuthState}}"
           ></facebook-auth>
+
+      <pre>
+        &lt;facebook-auth
+          id="fbAuth"
+          appID="{{appID}}"
+          scopes="{{scopes}}"
+          state="{{fbAuthState}}"
+          &gt;&lt;/facebook-auth&gt;
+      </pre>
+
+      <p>
+        <label>AppID:</label>
+        <input type="text" id="appID" value="{{appID}}"></input>
+        <button on-click="{{setup}}">Setup (and login)</button>
+        <br/>
+        <label>Scopes:</label>
+        <input type="text" id="scopes" value="{{scopes}}"></input>
+      </p>
 
       <button on-click="{{fbLogin}}">Login</button>
       <button on-click="{{fbLogout}}">Logout</button>
@@ -45,6 +63,10 @@
       var demo = document.querySelector("#demo");
 
       demo.permissions = "Click get permissions";
+
+      demo.setup = function() {
+        this.$.fbAuth.setup();
+      }
 
       demo.fbAuthStateChanged = function() {
         console.log("State changed");

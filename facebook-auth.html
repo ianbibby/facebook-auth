@@ -2,6 +2,15 @@
 
 <!--
 A simple Facebook authentication element using core-signals.
+Inspired by:
+
+https://github.com/davidwittenbrink/facebook-login
+
+Here are the differences:
+
+- Use core-signals since to broadcast the authentication events
+- Allows you to use your own Facebook login button, i.e. no fb:login-button.
+- Easy checking for permissions incase you need to re-request more private ones later.
 
 ##### Example
 
@@ -61,11 +70,51 @@ A simple Facebook authentication element using core-signals.
          * @default null
          */
         appID: null,
+
+        /**
+         * Requested Facebook scopes.  Must be space-delimited.
+         *
+         * @attribute scopes
+         * @type string
+         * @default null
+         */
         scopes: "public_profile",
+
+        /**
+         * Granted/declined Facebook permissions.  Published for easy read-only two-way binding.
+         * Requires that you call #getPermissions first.
+         *
+         * @attribute permissions
+         * @type Object
+         * @default null
+         */
         permissions: null,
+
+        /**
+         * Facebook authentication state.  Published for easy read-only two-way binding.
+         *
+         * @attribute state
+         * @type string
+         * @default null
+         */
         state: null,
 
         ready: function () {
+          if (!this.appID) {
+            console.error("Facebook appID is required!");
+            return;
+          }
+
+          this.setup();
+        },
+
+        /**
+         * Adds all of the Facebook boilerplate JS for you and checks the authentication state.
+         * Called automatically by #ready.
+         *
+         * @method setup
+         */
+        setup: function() {
           handler = this;
 
           window.fbAsyncInit = function() {
@@ -102,21 +151,47 @@ A simple Facebook authentication element using core-signals.
             }(document, 'script', 'facebook-jssdk'));
           }
         },
+
+        /**
+         * Perform Facebook login using the provided scopes.
+         *
+         * @method login
+         */
         login: function() {
           FB.login(function(response) {
             statusChangeCallback(response);
           }, { scope: this.scopes });
         },
+
+        /**
+         * Perform Facebook logout.  Note that this is here only for completeness and does not really work on the web.
+         * Facebook states that a user should ideally use Facebook itself to perform a logout.
+         *
+         * @method logout
+         */
         logout: function() {
           FB.logout(function(response) {
             statusChangeCallback(response);
           });
         },
+        /**
+         * Gets the Facebook login status.
+         *
+         * @method getLoginStatus
+         */
         getLoginStatus: function() {
           FB.getLoginStatus(function(response) {
             statusChangeCallback(response);
           });
         },
+
+        /**
+         * Performs a Facebook API request using the current accessToken to acquire the permissions granted/declined for the app.
+         * When the data is available, a 'facebook-auth-permissions-ready' signal is fired, at
+         which time you can query the permissions property.
+         *
+         * @method getPermissions
+         */
         getPermissions: function() {
           FB.api('/me/permissions', function(response) {
             var data = response.data;
@@ -127,6 +202,31 @@ A simple Facebook authentication element using core-signals.
             handler.fire('core-signal', { name: "facebook-auth-permissions-ready", data: handler.permissions });
           });
         }
+
+        /**
+         * The `facebook-auth-success` event is fired when successfully logged in with Facebook and your application.
+         *
+         * @event facebook-auth-success
+         */
+
+        /**
+         * The `facebook-auth-not-authorized` event is fired when successfully logged in with Facebook but not your application.
+         *
+         * @event facebook-auth-not-authorized
+         */
+
+        /**
+         * The `facebook-auth-not-logged-in` event is fired when the user is not logged into Facebook.  Note that you can't be sure if they've added your application here.
+         *
+         * @event facebook-auth-not-logged-in
+         */
+
+        /**
+         * The `facebook-auth-permissions-ready` event is fired when the Facebook permissions have been retrieved, following a call from #getPermissions.
+         *
+         * @event facebook-auth-permissions-ready
+         */
+
       });
     })();
   </script>
